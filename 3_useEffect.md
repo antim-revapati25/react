@@ -201,4 +201,201 @@ Mount → Effect Runs → (Dependencies Change?) → Cleanup → Re-run → Unmo
 
 ---
 
-> 💡 **Tip:** If you ever wonder *when your `useEffect` runs*, log messages inside the effect and cleanup. It’s the easiest way to visualize the flow while coding.
+# Fetching Data in React: Why `useEffect` Cannot Be `async`
+
+This guide explains **why you cannot make `useEffect` directly `async`** in React and how to correctly handle asynchronous operations (like fetching data).
+
+---
+
+## 🧠 Why `useEffect` **cannot** be `async`
+
+When you write this:
+
+```js
+useEffect(async () => {
+  await fetchData();
+}, []);
+```
+
+It **looks fine**, but it’s actually **wrong**. Let’s understand why 👇
+
+---
+
+## 🧩 What `useEffect` expects
+
+React expects the function you pass into `useEffect` to **return either:**
+
+1. **Nothing (undefined)** → means no cleanup needed
+2. **A cleanup function** → runs when the component unmounts or dependencies change
+
+**Example:**
+
+```js
+useEffect(() => {
+  console.log("Mounted");
+
+  return () => console.log("Cleaned up");
+}, []);
+```
+
+So React runs the function you provide and looks at **its return value**.
+
+---
+
+## ⚠️ What happens if you make it `async`
+
+If you write:
+
+```js
+useEffect(async () => {
+  await fetchData();
+}, []);
+```
+
+👉 An `async` function **always returns a Promise**.
+So now React sees something like:
+
+```js
+Promise { <pending> }
+```
+
+React thinks:
+
+> “Oh, you returned something — is that a cleanup function?”
+
+But it’s **not** a function; it’s a **Promise**.
+React doesn’t know what to do with that and gets confused.
+
+That’s why React warns or behaves unexpectedly.
+
+---
+
+## ✅ Correct way (define async inside)
+
+Wrap your async logic *inside* the effect instead of making the effect itself async:
+
+```js
+useEffect(() => {
+  async function fetchData() {
+    const res = await fetch('/api/data');
+    const data = await res.json();
+    console.log(data);
+  }
+
+  fetchData();
+}, []);
+```
+
+✅ `useEffect` itself returns nothing.
+✅ Async code runs safely inside.
+
+---
+
+## ✅ Alternative: IIFE (Immediately Invoked Async Function)
+
+Some developers prefer this shorter syntax:
+
+```js
+useEffect(() => {
+  (async () => {
+    const res = await fetch('/api/data');
+    const data = await res.json();
+    console.log(data);
+  })();
+}, []);
+```
+
+It’s the same thing — just immediately runs the async function.
+
+---
+
+## 🧹 Cleanup example (with fetch cancellation)
+
+If you want to handle cleanup (cancel the fetch when component unmounts), use an **AbortController**:
+
+```js
+useEffect(() => {
+  const controller = new AbortController();
+
+  (async () => {
+    try {
+      const res = await fetch('/api/data', { signal: controller.signal });
+      const data = await res.json();
+      console.log(data);
+    } catch (err) {
+      if (err.name === 'AbortError') console.log('Fetch cancelled');
+    }
+  })();
+
+  // cleanup function
+  return () => controller.abort();
+}, []);
+```
+
+✅ Effect returns a cleanup function.
+✅ AbortController ensures fetch cancels on unmount.
+
+---
+
+## 🧩 Summary Table
+
+| ❌ Wrong                                              | ✅ Correct                                                                 |
+| :--------------------------------------------------- | :------------------------------------------------------------------------ |
+| `useEffect(async () => { await fetchData(); }, []);` | `useEffect(() => { async function fetchData(){...}; fetchData(); }, []);` |
+| Returns a **Promise** (React confused)               | Returns **nothing** (React happy)                                         |
+| No cleanup support                                   | Cleanup possible                                                          |
+
+---
+
+## 🔍 Visual Flow
+
+```
+BAD: useEffect(async () => { ... })
+       └─ returns Promise
+React expects: undefined OR () => cleanup
+=> mismatch -> warning
+
+GOOD: useEffect(() => { async function(){...}; asyncFn(); return cleanup? })
+       └─ returns undefined or cleanup function
+React happy ✅
+```
+
+---
+
+## ✅ Quick Checklist
+
+1. Never write `useEffect(async () => { ... })`
+2. Put async work *inside* the effect (inner async function or IIFE)
+3. Use `AbortController` if needed to cancel fetches
+4. Return cleanup if necessary
+
+---
+
+### Example: Final Correct Pattern
+
+```jsx
+useEffect(() => {
+  const controller = new AbortController();
+  const signal = controller.signal;
+
+  async function fetchData() {
+    try {
+      const res = await fetch('/api/data', { signal });
+      const data = await res.json();
+      console.log(data);
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('Error fetching:', err);
+      }
+    }
+  }
+
+  fetchData();
+
+  return () => controller.abort(); // cleanup
+}, []);
+```
+
+✅ Correct async handling inside `useEffect`
+✅ Proper cleanup
+✅ No React warnings
