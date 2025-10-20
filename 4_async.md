@@ -243,3 +243,175 @@ export default function Home() {
   );
 }
 ```
+
+# Understanding Promises, Async/Await, and JavaScript Execution
+
+This guide explains JavaScript promises, async/await behavior, and execution order with detailed examples and comments. It’s suitable for beginners to fully understand how JS handles asynchronous code.
+
+---
+
+## 1️⃣ Normal Promise
+```javascript
+export const fun = () => {
+  console.log("i am working fine");
+
+  // Create a new promise
+  const p = new Promise((resolve, reject) => {
+    resolve("Promise resolved!"); // immediately resolves
+  });
+
+  function getData() {
+    // .then() is used to handle resolved value of promise
+    p.then((res) => console.log(res));
+  }
+
+  getData();
+};
+````
+
+**Explanation:**
+
+* JS engine executes code line by line.
+* `p.then()` schedules the callback to run after current execution.
+* Output:
+
+```
+i am working fine
+Promise resolved!
+```
+
+* **Comment:** Promise does not block code execution, `.then()` runs asynchronously.
+
+---
+
+## 2️⃣ Promise with setTimeout
+
+```javascript
+export const fun = () => {
+  const p = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve("Promise resolved!");
+    }, 3000);
+  });
+
+  function getData() {
+    console.log("one");
+    p.then((res) => console.log(res));
+    console.log("two");
+  }
+
+  // output: one, two, Promise resolved
+  getData();
+};
+```
+
+**Explanation:**
+
+* `setTimeout` delays resolution of the promise.
+* JS engine **does not wait** for promise, executes next line immediately.
+* Output after 3 seconds: `Promise resolved!`
+* **Comment:** Promise callbacks are asynchronous and run after current execution context finishes.
+
+---
+
+## 3️⃣ Using Await
+
+```javascript
+const p = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve("Promise resolved!");
+  }, 3000);
+});
+
+async function handlePromise() {
+  console.log("one");
+  const val = await p; // JS waits here until promise resolves
+  console.log(val);
+  console.log("two");
+}
+
+handlePromise();
+```
+
+**Explanation:**
+
+* `await` **pauses the async function** until the promise resolves.
+* JS engine does not block other tasks globally, but inside async function it waits.
+* Output after 3 seconds:
+
+```
+one
+Promise resolved!
+two
+```
+
+* **Comment:** Await gives sequential-like behavior for async operations.
+
+---
+
+## 4️⃣ Multiple Await Calls
+
+```javascript
+export const fun = () => {
+  const p = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve("Promise resolved!");
+    }, 3000);
+  });
+
+  async function handlePromise() {
+    console.log("one");
+    const val = await p;
+    console.log(val);
+    console.log("two");
+    const val2 = await p;
+    console.log(val2);
+    console.log("three");
+  }
+
+  handlePromise();
+
+  // output: one, Promise resolved, two, Promise resolved, three
+};
+```
+
+**Explanation:**
+
+* Each `await` waits for the **same promise** (already resolved) but does not wait extra time.
+* **Important Comment:** If you use multiple new promises with setTimeout, the timers run **concurrently**, not sequentially.
+* So if each promise has 3s timeout, two promises can resolve around 3s each, not 6s total.
+
+---
+
+## 5️⃣ Multiple setTimeout with .then
+
+```javascript
+function getData() {
+  console.log("one");
+  p.then((res) => console.log(res));
+  console.log("two");
+  p.then((res) => console.log(res));
+  console.log("three");
+}
+
+// output: one, two, three, Promise resolved, Promise resolved
+getData();
+```
+
+**Explanation:**
+
+* `.then()` callbacks are asynchronous.
+* JS executes all synchronous code first: `console.log("one")`, `console.log("two")`, `console.log("three")`
+* When promise resolves, the `.then()` callbacks run.
+* **Comment:** Promises do not block execution; each `.then()` is independent and queued for execution after current stack.
+
+---
+
+## ✅ Key Takeaways
+
+* **Promises**: Do not block execution. `.then()` runs asynchronously.
+* **setTimeout**: Delays resolution but does not pause JS execution.
+* **await**: Pauses async function until promise resolves, providing sequential-like code.
+* **Multiple timers**: Run concurrently, not sequentially. Total wait is max timer, not sum.
+* **.then() vs await**: `.then()` schedules callback asynchronously; `await` pauses execution inside async function.
+* **Comment Emphasis:** Understanding event loop and execution order is crucial for async
