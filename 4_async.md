@@ -415,3 +415,277 @@ getData();
 * **Multiple timers**: Run concurrently, not sequentially. Total wait is max timer, not sum.
 * **.then() vs await**: `.then()` schedules callback asynchronously; `await` pauses execution inside async function.
 * **Comment Emphasis:** Understanding event loop and execution order is crucial for async
+
+
+# Understanding Async, Await, and Promise Execution in JavaScript
+
+This guide explains how JavaScript handles **Promises**, **async/await**, **fetch**, and **error handling** with complete inline explanations and comments preserved.
+
+---
+
+## 🧩 Example 1: Sequential Promise Execution Using Async/Await
+
+```javascript
+const p = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve("Promise resolved!");
+  }, 3000);
+});
+
+const p2 = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve("Promise resolved2 !");
+  }, 3000);
+});
+
+async function handlePromise() {
+  console.log("one");
+  const val = await p; // waits till 'p' is resolved before moving forward
+  console.log(val);
+  console.log("two");
+  const val2 = await p2; // waits till 'p2' is resolved after 'p' completes
+  console.log(val2);
+  console.log("three");
+}
+
+handlePromise();
+
+// Output -> one, Promise resolved (after 3 sec), two, Promise resolved2, three
+```
+
+---
+
+## ⚡ Example 2: Parallel Promise Execution Using .then()
+
+```javascript
+const p = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve("Promise resolved!");
+  }, 3000);
+});
+
+const p2 = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve("Promise resolved2 !");
+  }, 3000);
+});
+
+// async function handlePromise() {
+//   console.log("one");
+//   const val = await p;
+//   console.log(val);
+//   console.log("two");
+//   const val2 = await p2;
+//   console.log(val2);
+//   console.log("three");
+// }
+// handlePromise();
+
+// Output -> one, Promise resolved (after 3 sec), two, Promise resolved2, three
+
+function getData() {
+  console.log("one");
+  p.then((res) => console.log(res)); // Executes asynchronously
+  console.log("two");
+  p2.then((res) => console.log(res)); // Executes asynchronously
+  console.log("three");
+}
+
+// Output: one, two, three, Promise resolved, Promise resolved2 (both after 3 seconds — not sequential)
+getData();
+```
+
+📘 **Key Takeaway:**
+
+* Using `.then()` executes both promises **in parallel** — both timers start together.
+* Using `await` executes them **sequentially** — one after another.
+
+---
+
+## 🕰️ Example 3: Different Timer Durations
+
+```javascript
+const p = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve("Promise resolved!");
+  }, 10000);
+});
+
+const p2 = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve("Promise resolved2 !");
+  }, 5000);
+});
+
+async function handlePromise() {
+  console.log("one");
+  const val = await p; // waits 10 sec
+  console.log(val);
+  console.log("two");
+  const val2 = await p2; // already resolved after 5 sec, so executes immediately
+  console.log(val2);
+  console.log("three");
+}
+
+handlePromise();
+
+// Output -> one, (after 10 sec) Promise resolved, two, Promise resolved2, three
+```
+
+---
+
+## ⚙️ Deep Dive: Execution Context Working
+
+### Step-by-step:
+
+1. **First log executes immediately**
+
+   * `console.log("one")` is pushed into execution context and printed.
+
+2. **Encountering `await p`**
+
+   * Since the promise is not resolved yet, JS **suspends** the async function’s execution.
+   * The function moves **out of the call stack**, freeing the main thread.
+   * This ensures the page doesn’t freeze while waiting.
+
+3. **Promise Timer Execution**
+
+   * The `setTimeout` inside the Promise runs **in parallel** (in the browser's Web API environment).
+   * After 10 seconds, the callback queue pushes the resolved promise result back.
+
+4. **Resuming Execution**
+
+   * Once the promise resolves, the async function is **brought back into execution context**.
+   * The function continues from where it was suspended.
+
+5. **`await p2` behaves similarly**, but since `p2` had already resolved (after 5 sec), it executes instantly.
+
+> ❓ **Why timers run in parallel and not sequentially?**
+>
+> Because JavaScript’s event loop doesn’t block on promises. Both `setTimeout`s start simultaneously in the Web API. While `await` suspends only the **current async function**, the timers continue counting independently.
+
+🧠 **Key Insight:**
+
+* JavaScript engine never waits for a promise to resolve.
+* It simply **pauses** (suspends) execution of the async function, allowing the main thread to process other tasks.
+
+---
+
+## 🌐 Example 4: Fetch and Async/Await
+
+```javascript
+export const fun = () => {
+  async function handlePromise() {
+    const API_URL = "https://api.github.com/users/antim-revapati25";
+
+    // how fetch works
+
+    // fetch(API_URL); --> fetch returns a promise
+    // await fetch(API_URL); we use await to resolve promise which will return a response object
+
+    const data = await fetch(API_URL); // gives response obj which has readable stream
+
+    // we need to convert data to json which will also return a promise
+    // data.json() will return a promise, and once this promise resolves, it gives the JSON value
+
+    const jsonVal = await data.json();
+
+    // alternative using .then
+    // fetch(API_URL)
+    //   .then((data) => data.json())
+    //   .then((res) => console.log(res));
+
+    console.log(jsonVal);
+  }
+  handlePromise();
+};
+```
+
+📘 **Flow:**
+
+1. `fetch()` returns a Promise.
+2. `await fetch()` resolves it and gives a `Response` object.
+3. `response.json()` returns another Promise.
+4. The final JSON is obtained after resolving that Promise.
+
+---
+
+## 🚨 Example 5: Error Handling in Async/Await
+
+```javascript
+export const fun = () => {
+  async function handlePromise() {
+    const API_URL = "https://api.github.com/users/antim-revapati25";
+
+    // error handling is done using try catch in async await
+    try {
+      const data = await fetch(API_URL); // gives response obj which has readable stream
+
+      const jsonVal = await data.json();
+      console.log(jsonVal);
+    } catch (err) {
+      console.log("failed to fetch the data: " + err);
+    }
+
+    // alternative using .then
+    // fetch(API_URL)
+    //   .then((data) => data.json())
+    //   .then((res) => console.log(res));
+    // error handling in .then is done using .catch method
+  }
+  handlePromise();
+};
+```
+
+✅ **Key Concept:**
+
+* Use `try...catch` to handle errors in async/await syntax.
+* In `.then()`, use `.catch()` for error handling.
+
+---
+
+## ⚙️ Example 6: Handling Errors via Promise Catch
+
+```javascript
+export const fun = () => {
+  async function handlePromise() {
+    const API_URL = "https://api.github.com/users/antim-revapati25";
+
+    const data = await fetch(API_URL); // gives response obj which has readable stream
+
+    const jsonVal = await data.json();
+    console.log(jsonVal);
+  }
+
+  // async function returns a promise, so we can catch errors like this also
+  handlePromise().catch((err) => console.log("failed to fetch: " + err));
+};
+```
+
+🧠 **Insight:**
+
+* Async functions always return a **Promise**.
+* Hence, you can attach `.catch()` to handle rejections directly.
+
+---
+
+## 🧾 Summary Table
+
+| Concept                       | Behavior                      | Key Takeaway                                                |
+| ----------------------------- | ----------------------------- | ----------------------------------------------------------- |
+| `.then()`                     | Runs promises in parallel     | Both start immediately, no waiting                          |
+| `await`                       | Runs promises sequentially    | Waits for one before the next                               |
+| `fetch()`                     | Returns a Promise             | Must resolve twice: for `fetch()` and for `response.json()` |
+| `try...catch`                 | Handles errors in async/await | Cleaner than `.catch()` chaining                            |
+| `setTimeout()` inside Promise | Runs in Web APIs              | Executes asynchronously without blocking main thread        |
+
+---
+
+## 🧠 Core Concept Recap
+
+> JavaScript is **single-threaded**, but with **event loop**, **callback queue**, and **Web APIs**, it achieves **asynchronous behavior** without blocking.
+>
+> Async/Await makes this easier to read and manage, but under the hood, it’s still promise-based asynchronous execution.
+
+---
+
