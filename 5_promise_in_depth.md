@@ -765,5 +765,8 @@ Error: cart is empty
 > 🔁 Every `.then()` and `.catch()` creates a **new wrapped promise** for chaining.
 >
 > 🧩 A `.then()` placed after `.catch()` behaves like **`finally`** in Java, running no matter what happens.
-
+>
+> Note: we are attaching a callback function in promises while in callback hell we pass callback function
+>
+> Also don't forget to return values down the chain
 ---
