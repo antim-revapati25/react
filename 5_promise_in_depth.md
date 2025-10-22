@@ -752,3 +752,18 @@ Error: cart is empty
 ```
 
 👉 Hence, the **last `.then()` always runs**, making it a reliable place for final actions, even if the chain failed earlier.
+
+
+---
+---
+> ⚡ **Final Takeaway — Short Summary**
+>
+> 🟢 **Promise** is an object that represents a future value (either resolved or rejected).
+>
+> 🔒 A promise can be **settled only once** — you can’t resolve or reject it twice.
+>
+> 🔁 Every `.then()` and `.catch()` creates a **new wrapped promise** for chaining.
+>
+> 🧩 A `.then()` placed after `.catch()` behaves like **`finally`** in Java, running no matter what happens.
+
+---
