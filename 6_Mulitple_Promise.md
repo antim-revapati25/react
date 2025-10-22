@@ -47,6 +47,7 @@
 * Ignores rejections until one succeeds.
 * If **all promises reject**, it rejects with an **AggregateError** containing all reasons.
 * ⚡ Use when you want the *first success*, not the first settlement.
+* We will get aggregated error inside .catch method. we will get aggregated error in err.errors as a form of list
 
 ---
 
@@ -86,6 +87,8 @@
 7. Performance, resource, and cancellation considerations
 8. Notes on spec behavior, AggregateError, and cross‑engine consistency
 
+---
+# Note: promise settled means - the promise resturned something - either resolved(success) or rejected(failed)
 ---
 
 # 1. Shared fundamentals
