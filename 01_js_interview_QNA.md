@@ -90,7 +90,7 @@ var say = function () { console.log("Hello"); };
 ---
 
 ## **Q7: How many types of scopes exist in JavaScript?**  
-(Theory – visible)
+ 
 
 - Global scope  
 - Function scope  
@@ -101,7 +101,7 @@ var say = function () { console.log("Hello"); };
 ---
 
 ## **Q8: What is lexical scoping?**  
-(Theory – visible)
+ 
 
 Lexical scoping means the scope of a variable is determined **by its physical location** in the source code.
 
@@ -133,7 +133,7 @@ console.log(x);
 ---
 
 ## **Q10: What is execution context?**  
-(Theory – visible)
+ 
 
 Each JS file/function runs inside an execution context with:
 - Creation phase (hoisting)
@@ -142,7 +142,7 @@ Each JS file/function runs inside an execution context with:
 ---
 
 ## **Q11: What are the types of execution contexts?**  
-(Theory – visible)
+ 
 
 - Global execution context  
 - Function execution context  
@@ -151,7 +151,7 @@ Each JS file/function runs inside an execution context with:
 ---
 
 ## **Q12: What is the call stack?**  
-(Theory – visible)
+ 
 
 The stack where execution contexts are pushed/popped.
 
@@ -162,7 +162,7 @@ The stack where execution contexts are pushed/popped.
 ---
 
 ## **Q13: What is a closure?**  
-(Theory – visible)
+ 
 
 A closure is a function + its lexical scope, even after the outer function returns.
 
@@ -213,14 +213,14 @@ Because `var` is function-scoped and the closure captures final value.
 ---
 
 ## **Q16: What determines the value of `this`?**  
-(Theory – visible)
+ 
 
 The **call-site** (how a function is invoked), not where it's defined.
 
 ---
 
 ## **Q17: 4 rules of `this` binding**  
-(Theory – visible)
+ 
 
 1. Default binding (global object)  
 2. Implicit binding (`obj.method()`)  
@@ -253,7 +253,7 @@ Arrow functions do not bind their own `this`.
 ---
 
 ## **Q19: Differences between arrow and normal functions**  
-(Theory – visible)
+ 
 
 - No own `this`  
 - No `arguments`  
@@ -287,7 +287,7 @@ Arrow inherits arguments from parent function.
 ---
 
 ## **Q21: What is a prototype?**  
-(Theory – visible)
+ 
 
 A hidden object linked to every JS function/object, enabling inheritance.
 
@@ -335,7 +335,7 @@ console.log(A.prototype.x);
 ---
 
 ## **Q24: Are JavaScript classes real classes?**  
-(Theory – visible)
+ 
 
 No. They are **syntactic sugar** over prototypes.
 
@@ -361,7 +361,7 @@ console.log(typeof A);
 ---
 
 ## **Q26: Microtasks vs macrotasks?**  
-(Theory – visible)
+ 
 
 - Microtasks: Promises, queueMicrotask  
 - Macrotasks: setTimeout, setInterval  
@@ -545,7 +545,7 @@ console.log(g.next().value);
 ---
 
 ## **Q35: Object.freeze vs Object.seal**  
-(Theory – visible)
+ 
 
 - freeze → cannot add/remove/modify  
 - seal → cannot add/remove, but can modify  
@@ -630,7 +630,7 @@ function hof(fn) {
 }
 ```
 
-(Theory – visible)  
+   
 A higher-order function returns a function or receives one.
 
 
@@ -641,7 +641,7 @@ A higher-order function returns a function or receives one.
 ---
 
 ## **Q41: What is type coercion in JavaScript?**  
-(Theory – visible)
+ 
 
 Type coercion is the automatic or implicit conversion of values from one data type to another (e.g., string → number).  
 Happens in:
@@ -880,7 +880,7 @@ obj.show();
 ---
 
 ## **Q55: What are getters and setters?**  
-(Theory – visible)
+ 
 
 They allow encapsulation using `get` and `set` keywords to intercept property reads/writes.
 
@@ -1295,7 +1295,7 @@ Executes sequentially; slows down.
 await Promise.all([1,2,3].map(async (x) => console.log(x)));
 ```
 
-(Theory – visible)
+ 
 
 ---
 
@@ -1304,7 +1304,7 @@ await Promise.all([1,2,3].map(async (x) => console.log(x)));
 ---
 
 ## **Q78: Why setTimeout cannot be caught by try/catch?**  
-(Theory – visible)
+ 
 
 Because setTimeout executes in Web APIs, not the JS call stack.
 
@@ -1367,7 +1367,7 @@ console.log(g.next());
 ---
 
 ## **Q81: What is `Object.getOwnPropertyDescriptor()` used for?**  
-(Theory – visible)
+ 
 
 It retrieves metadata about an object's property such as:
 - writable  
@@ -1444,7 +1444,7 @@ Non-configurable properties cannot be deleted.
 ---
 
 ## **Q85: Differences between Map and Object**  
-(Theory – visible)
+ 
 
 Maps:
 - Allow any type as key  
@@ -1502,7 +1502,7 @@ WeakMaps do NOT prevent object cleanup.
 ---
 
 ## **Q88: What are Symbols?**  
-(Theory – visible)
+ 
 
 Symbols are unique identifiers used to avoid property name collisions and create hidden object keys.
 
@@ -1546,7 +1546,7 @@ Symbol keys are non-enumerable in typical iteration.
 ---
 
 ## **Q91: What changes in strict mode?**  
-(Theory – visible)
+ 
 
 - `this` becomes undefined in functions  
 - No accidental globals  
@@ -1577,7 +1577,7 @@ undefined
 ---
 
 ## **Q93: What is a Higher-Order Function?**  
-(Theory – visible)
+ 
 
 A function that either:
 - accepts another function as a parameter  
@@ -1594,7 +1594,7 @@ function hof(fn){
 }
 ```
 
-(Theory – visible)
+ 
 
 ---
 
@@ -1629,7 +1629,7 @@ function memo(fn){
 }
 ```
 
-(Theory – visible)
+ 
 
 ---
 
@@ -2002,7 +2002,7 @@ false
 ---
 
 ## **Q115: What is BigInt?**  
-(Theory – visible)
+ 
 
 A numeric type for arbitrarily large integers using `123n` syntax.
 
@@ -2041,7 +2041,7 @@ TypeError
 ---
 
 ## **Q118: What is Set useful for?**  
-(Theory – visible)
+ 
 
 - Unique values  
 - Fast membership checks  
@@ -2605,7 +2605,7 @@ Promise.resolve(10)
 ---
 
 ## **Q148: What are hidden classes?**  
-(Theory – visible)
+ 
 
 Hidden classes are internal engine structures V8 uses to optimize property access and improve performance.  
 Changing the "shape" of an object (adding properties in different order) de-optimizes it.
